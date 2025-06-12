@@ -59,7 +59,7 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
    | Dataset                | Deskripsi                                                                 |
 | ---------------------- | ------------------------------------------------------------------------- |
 |`scraped_data`         | Dataset hasil scraping informasi eksternal (opsional)                       |
-|`stock_prices_cleaned` | Dataset hasil ETL streaming, sudah dibersihkan dan disimpan di PostgreSQL |              |
+|`stock_prices_cleaned` | Dataset hasil ETL streaming, sudah dibersihkan dan disimpan di PostgreSQL | 
 | `predicted_prices`     | Dataset hasil prediksi dari model Random Forest Regression                |
 
 9. Visualisasi Dashboard
