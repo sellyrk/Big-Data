@@ -30,16 +30,27 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
     docker-compose up -d
     ```
  4) Menjalankan Kafka Producer
-    Menjalankan skrip file Kafka Producer untuk melakukan scrapping harga saham. File: kafka_producer.py
+    Menjalankan skrip file Kafka Producer untuk melakukan scrapping harga saham, kemudian menyimpannya denga nama stock_data ke dalam file lokal. File: scrape_history_to_csv.py
     ```
-    python kafka_producer.py
+    python scrape_history_to_csv.py
     ```
  5) Menjalankan PySpark Structured Streaming ETL
-    Menjalankan skrip file PySpark untuk melakukan pembersihan dan pengolahan data yang telah di-scrapping sebelumnya. File: streaming_etl.py
+    Menjalankan skrip file PySpark untuk melakukan pembersihan dan pengolahan data yang telah di-scrapping sebelumnya, kemudian mengirimkannya sebagai stock_prices_cleaned ke dalam database stockdb di PostgreSQL. File: pyspark_batch_from_csv.py
     ```
-    spark-submit streaming_etl.py
+    $env:PYSPARK_PYTHON="python"
+    spark-submit pyspark_batch_from_csv.py
     ```
-  6) Menjalankan Metabase
+  6) Menjalankan Kafka Producer untuk Data Real-Time
+     Menjalankan skrip file Kafka Producer yang kedua untuk mengambil melakukan scrapping harga saham secara real-time. File: kafka_producer_stock.py
+    ```
+    python kafka_producer_stock.py
+    ```
+  8) Menjalankan Kafka Producer untuk Data Real-Time
+     Menjalankan skrip file PySpark untuk melakukan pembersihan dan pengolahan data yang telah di-scrapping secara real-time sebelumnya, kemudian mengirimkannya sebagai stock_prices_cleaned ke dalam database stockdb di PostgreSQL. File: pyspark_streaming_kafka_to_postgres.py
+    ```
+    pyspark_streaming_kafka_to_postgres.py
+    ```
+  9) Menjalankan Metabase
      Mengakses Metabase ke dalam localhost:3000 untuk melakukan pembuatan visualisasi dalam bentuk dahsboard
      ```
      docker run -d -p 3000:3000 --name metabase metabase/metabase
