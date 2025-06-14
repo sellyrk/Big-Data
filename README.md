@@ -12,7 +12,7 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
 - Prediksi harga saham menggunakan model Random Forest Regression
 - Hasil akhir dalam bentuk 3 dataset utama, yaitu Dataset 1: Dataset hasil scraping data dengan KafkaProducer (berisi nilai Symbol, Datetime, Close dan Volume harga saham), Dataset 2: Hasil pembersihan dan transformasi dari PySpark (stock_prices_cleaned) dan Dataset 3: Dataset hasil prediksi model ML (predicted_prices)
 
-3. Setup dan Instalasi (*!PERLU DISESUAIKAN LAGI)
+2. Setup dan Instalasi (*!PERLU DISESUAIKAN LAGI)
 
  1) Prasyarat Tools
     - Docker
@@ -60,22 +60,22 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
      docker run -d -p 3000:3000 --name metabase metabase/metabase
      ```
      
-4. Pelatihan dan Evaluasi Model ML
+3. Pelatihan dan Evaluasi Model ML
 
    Model yang digunakan adalah Random Forest Regression dengan evaluasi akurasi sebesar []. Pada pemodelan ini digunakan Library: PySpark MLlib. Dengan target prediksi adalah harga saham pada waktu mendatang. Input features: Harga sebelumnya (close_ptc), volume, tren, dan variabel hasil scraping (jika ada) (!perlu disesuaikan).
 
-Pelatihan:
+   Pelatihan:
    ```
    python ml_train.py
    ```
-Pengujian:
+   Pengujian:
    ```
    python ml_predict_realtime.py
    ```
 
    Data pelatihan berasal dari "stock_prices_cleaned" sementara data uji menggunakan data realtime "stock_prices_cleaned" dengan data hasil output prediksi pemodelan yaitu "predicted_stock"
    
-5. Struktur Dataset Akhir
+4. Struktur Dataset Akhir
 
 | Dataset               | Deskripsi                                                                 |
 | ----------------------| ------------------------------------------------------------------------- |
@@ -83,11 +83,11 @@ Pengujian:
 |`stock_prices_cleaned` | Dataset hasil ETL streaming, sudah dibersihkan dan disimpan di PostgreSQL | 
 | `predicted_prices`    | Dataset hasil prediksi dari model Random Forest Regression                |
 
-6. Visualisasi Dashboard
+5. Visualisasi Dashboard
 
     [Gambar Dashboard Menyusul]
 
    (penjelasan dashboard)
    
-7. Kontributor
+6. Kontributor
     (nama kelompok)
