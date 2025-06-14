@@ -36,33 +36,31 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
     python scrape_history_to_csv.py
     ```
     
- 6) Menjalankan PySpark Structured Streaming ETL
+ 5) Menjalankan PySpark Structured Streaming ETL
     Menjalankan skrip file PySpark untuk melakukan pembersihan dan pengolahan data yang telah di-scrapping sebelumnya, kemudian mengirimkannya sebagai stock_prices_cleaned ke dalam database stockdb di PostgreSQL. File: pyspark_batch_from_csv.py
-    
     ```
     $env:PYSPARK_PYTHON="python"
     spark-submit pyspark_batch_from_csv.py
     ```
-    
-  8) Menjalankan Kafka Producer untuk Data Real-Time
+  6) Menjalankan Kafka Producer untuk Data Real-Time
      Menjalankan skrip file Kafka Producer yang kedua untuk mengambil melakukan scrapping harga saham secara real-time. File: kafka_producer_stock.py
     ```
     python kafka_producer_stock.py
     ```
-  9) Menjalankan PySpark untuk Data Real-Time
+  7) Menjalankan PySpark untuk Data Real-Time
      Menjalankan skrip file PySpark untuk melakukan pembersihan dan pengolahan data yang telah di-scrapping secara real-time sebelumnya, kemudian mengirimkannya sebagai stock_prices_cleaned ke dalam database stockdb di PostgreSQL. File: pyspark_streaming_kafka_to_postgres.py
      
     ```
     pyspark_streaming_kafka_to_postgres.py
     ```
     
-  11) Menjalankan Metabase
+  8) Menjalankan Metabase
      Mengakses Metabase ke dalam localhost:3000 untuk melakukan pembuatan visualisasi dalam bentuk dahsboard.
      ```
      docker run -d -p 3000:3000 --name metabase metabase/metabase
      ```
      
-5. Pelatihan dan Evaluasi Model ML
+4. Pelatihan dan Evaluasi Model ML
 
    Model yang digunakan adalah Random Forest Regression dengan evaluasi akurasi sebesar []. Pada pemodelan ini digunakan Library: PySpark MLlib. Dengan target prediksi adalah harga saham pada waktu mendatang. Input features: Harga sebelumnya (close_ptc), volume, tren, dan variabel hasil scraping (jika ada) (!perlu disesuaikan).
 
@@ -77,7 +75,7 @@ Pengujian:
 
    Data pelatihan berasal dari "stock_prices_cleaned" sementara data uji menggunakan data realtime "stock_prices_cleaned" dengan data hasil output prediksi pemodelan yaitu "predicted_stock"
    
-7. Struktur Dataset Akhir
+5. Struktur Dataset Akhir
 
 | Dataset               | Deskripsi                                                                 |
 | ----------------------| ------------------------------------------------------------------------- |
@@ -85,11 +83,11 @@ Pengujian:
 |`stock_prices_cleaned` | Dataset hasil ETL streaming, sudah dibersihkan dan disimpan di PostgreSQL | 
 | `predicted_prices`    | Dataset hasil prediksi dari model Random Forest Regression                |
 
-9. Visualisasi Dashboard
+6. Visualisasi Dashboard
 
     [Gambar Dashboard Menyusul]
 
    (penjelasan dashboard)
    
-11. Kontributor
+7. Kontributor
     (nama kelompok)
