@@ -7,7 +7,7 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
 
 - Streaming data saham real-time 50 top saham dari Yahoo Finance menggunakan Kafka
 
-  Dalam hal ini, menggunakan modul yfinance, harga saham dari 50 perusahaan top disiapkan dalam bentuk real-time stream menggunakan Kafka Producer. Data ini kemudian dikirimkan ke Kafka Topic untuk diolah secara stream.
+  Dalam hal ini, menggunakan modul yfinance, harga saham dari 50 saham top diambil dari Yahoo Finance menggunakan yfinance dan disimpan dalam file data/historical_stock_prices.csv, yang sebelumnya diolah dalam bentuk real-time stream menggunakan Kafka Producer. Data ini kemudian dikirimkan ke Kafka Topic untuk diolah secara stream. File historical_stock_prices.csv berisi lebih dari 94.000 baris data dengan kolom seperti Symbol, Datetime, Close, dan Volume.
   
 - Pengolahan dan pembersihan data menggunakan PySpark
 
@@ -40,22 +40,20 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
     pip install yfinance kafka-python pyspark psycopg2
     ```
  3) Menjalankan Kafka & PostgreSQL via Container di Docker
-    Menjalankan konfigurasi file docker-compose untuk instalasi awal
+    Menjalankan konfigurasi file docker-compose untuk instalasi awal pada kontainer yang dibutuhkan. Pada tahap ini, juga dibuat database dengan nama stock_db, lengkap dengan user dan passwordnya.
     ```
     docker-compose up -d
     ```
  4) Menjalankan Kafka Producer
-    Menjalankan skrip file Kafka Producer untuk melakukan scrapping harga saham, kemudian menyimpannya denga nama stock_data ke dalam file lokal. File: scrape_history_to_csv.py
-    
+    Menjalankan skrip file Kafka Producer untuk melakukan scrapping harga saham, kemudian menyimpannya denga nama stock_data ke dalam file lokal. File: data_historical.py
     ```
-    python scrape_history_to_csv.py
+    python data_historical.py
     ```
     
  5) Menjalankan PySpark Structured Streaming ETL
-    Menjalankan skrip file PySpark untuk melakukan pembersihan dan pengolahan data yang telah di-scrapping sebelumnya, kemudian mengirimkannya sebagai stock_prices_cleaned ke dalam database stockdb di PostgreSQL. File: pyspark_batch_from_csv.py
+    Menjalankan skrip file PySpark untuk melakukan pembersihan dan pengolahan data yang telah di-scrapping sebelumnya, kemudian mengirimkannya sebagai stock_prices_cleaned ke dalam database stockdb di PostgreSQL. File: historical_to_postgre.py
     ```
-    $env:PYSPARK_PYTHON="python"
-    spark-submit pyspark_batch_from_csv.py
+    python historical_to_postgre.py
     ```
   6) Menjalankan Kafka Producer untuk Data Real-Time
      Menjalankan skrip file Kafka Producer yang kedua untuk mengambil melakukan scrapping harga saham secara real-time. File: kafka_producer_stock.py
@@ -82,11 +80,7 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
 
    Pelatihan:
    ```
-   python ml_train.py
-   ```
-   Pengujian:
-   ```
-   python ml_predict_realtime.py
+   python ml_training_batch.py
    ```
 
    Data pelatihan berasal dari "stock_prices_cleaned" sementara data uji menggunakan data realtime "stock_prices_cleaned" dengan data hasil output prediksi pemodelan yaitu "predicted_stock"
