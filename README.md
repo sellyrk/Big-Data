@@ -1,5 +1,5 @@
 # Big-Data (A)
-## Laporan Akhir Projek Final Big Data (A) Kelompok []
+## Laporan Akhir Projek Final Big Data (A) Kelompok 4
 
 Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** untuk melakukan **analisis dan prediksi harga saham dari 50 top perusahaan** berdasarkan data dari **Yahoo Finance API**. Arsitektur ini menggunakan kombinasi **Kafka**, **PySpark Structured Streaming**, **PostgreSQL**, dan **Metabase** untuk visualisasi, serta **PySpark MLlib** untuk pelatihan model prediktif menggunakan algoritma **Random Forest Regression**.
 
