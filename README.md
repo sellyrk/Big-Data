@@ -61,13 +61,14 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
      python kafka_producer_stock.py
      ```
      
-  7) Menjalankan PySpark untuk Data Real-Time
+  7) Menjalankan Kafka Consumer untuk Data Real-Time
+
      Menjalankan skrip file PySpark untuk melakukan pembersihan dan pengolahan data yang telah di-scrapping secara real-time sebelumnya, kemudian mengirimkannya sebagai stock_prices_cleaned ke dalam database stockdb di PostgreSQL. File: pyspark_streaming_kafka_to_postgres.py
      ```
-     pyspark_streaming_kafka_to_postgres.py
+     python kafka_consumer_stock.py
      ```
      
-  8) Menjalankan Metabase
+  9) Menjalankan Metabase
      Mengakses Metabase ke dalam localhost:3000 untuk melakukan pembuatan visualisasi dalam bentuk dahsboard.
      ```
      docker run -d -p 3000:3000 --name metabase metabase/metabase
@@ -89,7 +90,7 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
 
 | Dataset               | Deskripsi                                                                 |
 | ----------------------| ------------------------------------------------------------------------- |
-|`scraped_data`         | Dataset hasil scraping informasi eksternal (opsional)                     |
+|`historical_stock_prices.csv`         | Dataset hasil scraping informasi eksternal (opsional)                     |
 |`stock_prices_cleaned` | Dataset hasil ETL streaming, sudah dibersihkan dan disimpan di PostgreSQL | 
 | `predicted_prices`    | Dataset hasil prediksi dari model Random Forest Regression                |
 
