@@ -6,15 +6,25 @@ Projek ini bertujuan untuk membangun pipeline **Big Data Realtime dan Offline** 
 1. Fitur Utama
 
 - Streaming data saham real-time 50 top saham dari Yahoo Finance menggunakan Kafka
+
   Dalam hal ini, menggunakan modul yfinance, harga saham dari 50 perusahaan top disiapkan dalam bentuk real-time stream menggunakan Kafka Producer. Data ini kemudian dikirimkan ke Kafka Topic untuk diolah secara stream.
+  
 - Pengolahan dan pembersihan data menggunakan PySpark
-  PySpark digunakan untuk proses batch maupun stream ETL. Langkah-langkah pembersihan meliputi parsing format datetime, konversi tipe data numerik, penghapusan nilai null, serta kalkulasi fitur tambahan seperti persentase perubahan harga (close_ptc) dan volume rata-rata.
+
+   PySpark digunakan untuk proses batch maupun stream ETL. Langkah-langkah pembersihan meliputi parsing format datetime, konversi tipe data numerik, penghapusan nilai null, serta kalkulasi fitur tambahan seperti persentase perubahan harga (close_ptc) dan volume rata-rata.
+  
 - Penyimpanan data yang sudah dibersihkan ke dalam PostgreSQL
+
   Output dari proses batch maupun streaming disimpan ke dalam database stockdb menggunakan konektor **JDBC dari PySpark** atau **Psycopg2**??. Tabel utama yang digunakan dinamai stock_prices_cleaned.
+  
 - Visualisasi interaktif menggunakan Metabase Dashboard
+
   Metabase menyajikan dashboard interaktif untuk melihat tren harga saham, volume perdagangan, serta hasil prediksi. Dashboard dirancang untuk memperlihatkan perubahan harga harian, serta akurasi model prediktif secara real-time.
+  
 - Prediksi harga saham menggunakan model Linear Regression
+
   Metabase menyajikan dashboard interaktif untuk melihat tren harga saham, volume perdagangan, serta hasil prediksi. Dashboard digaunakan untuk memperlihatkan perubahan harga harian, serta akurasi model prediktif secara real-time.
+  
 - Hasil akhir dalam bentuk 3 dataset utama, yaitu Dataset 1: Dataset hasil scraping data dengan KafkaProducer (berisi nilai Symbol, Datetime, Close dan Volume harga saham), Dataset 2: Hasil pembersihan dan transformasi dari PySpark (stock_prices_cleaned) dan Dataset 3: Dataset hasil prediksi model ML (predicted_prices)
 
 2. Setup dan Instalasi (*!PERLU DISESUAIKAN LAGI)
