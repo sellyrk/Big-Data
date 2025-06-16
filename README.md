@@ -90,6 +90,7 @@ e. Prediksi Harga Saham Menggunakan Model ARIMA
     Semua layanan seperti PostgreSQL, Kafka, Kafka UI, Zookeeper, dan Metabase akan berjalan secara otomatis dalam mode detached (latar belakang). Selama proses inisialisasi ini, dibuat juga sebuah database dengan nama stockdb, lengkap dengan pengguna dan kata sandi yang sesuai dengan pengaturan pada file docker-compose.
 
  4) Menjalankan Kafka Producer
+
     Menjalankan skrip file Kafka Producer untuk melakukan scrapping harga saham, kemudian menyimpannya denga nama stock_data ke dalam file lokal. File: data_historical.py
     ```
     python data_historical.py
@@ -97,43 +98,43 @@ e. Prediksi Harga Saham Menggunakan Model ARIMA
 
     Kafka producer bertugas Mengambil data harga saham historis (real-time 1-menit dan selama 7 hari terakhir) dari 50 perusahaan top, lalu menyimpannya ke file CSV. Tahapannya adalah sebagai berikut:
 
-   a. Import Library
+      a. Import Library
 
-   Menggunakan library dari python yaitu yfinance untuk mengambil data saham dari Yahoo Finance, pandas untuk menyimpan dan mengolah data tabular, datetime untuk atur rentang waktu pengambilan data (7 hari ke belakang)
+      Menggunakan library dari python yaitu yfinance untuk mengambil data saham dari Yahoo Finance, pandas untuk menyimpan dan mengolah data tabular, datetime untuk atur rentang waktu pengambilan data (7 hari ke belakang)
 
-   b. Inisialisasi dan Setup
+      b. Inisialisasi dan Setup
 
-   Dilakukan dengan membuat folder data untuk menyimpan csv, dan inisialisasi list results untuk menampung semua data saham
+      Dilakukan dengan membuat folder data untuk menyimpan csv, dan inisialisasi list results untuk menampung semua data saham
 
-   c. Daftar Saham yang Diambil
+      c. Daftar Saham yang Diambil
 
-   Yaitu 50 simbol saham perusahaan besar di AS, seperti AAPL, Microsoft (MSFT), dll
+      Yaitu 50 simbol saham perusahaan besar di AS, seperti AAPL, Microsoft (MSFT), dll
 
-   d. Set Rentang Waktu selama 7 Hari Terakhir
+      d. Set Rentang Waktu selama 7 Hari Terakhir
 
-   Dengan cara membuat variabel end= datetime.now() dan start nya days=7
+      Dengan cara membuat variabel end= datetime.now() dan start nya days=7
 
-   e. Loop Ambil Data Per Saham
+      e. Loop Ambil Data Per Saham
 
-   Dengan cara mengambil data harga saham per 1 menit selama 7 hari terakhir untuk setiap simbol
+      Dengan cara mengambil data harga saham per 1 menit selama 7 hari terakhir untuk setiap simbol
 
-   f. Simpan Data yang Diperlukan
+      f. Simpan Data yang Diperlukan
 
-   Dengan mengambil 3 informasi penting dari tiap baris yaitu symbol= kode saham, price= haga penutupan, volume= jumlah transaksi, dan timestamp= waktu pengambilan data.
+      Dengan mengambil 3 informasi penting dari tiap baris yaitu symbol= kode saham, price= haga penutupan, volume= jumlah transaksi, dan timestamp= waktu pengambilan data.
 
-   g. Simpan ke CSV
+      g. Simpan ke CSV
 
-   Semua data disimpan jadi CSV di: data/historical_stock_prices.csv
-   Outputnya kurang lebih sebagai berikut:
+      Semua data disimpan jadi CSV di: data/historical_stock_prices.csv
+      Outputnya kurang lebih sebagai berikut:
 
-   ```
-     symbol,price,volume,timestamp
-   AAPL,204.06500244140625,2312674,2025-06-09 13:30:00
-   AAPL,204.21499633789062,313667,2025-06-09 13:31:00
-   AAPL,204.42999267578125,164566,2025-06-09 13:32:00
-   AAPL,204.63499450683594,126566,2025-06-09 13:33:00
-…
-   ```
+       ```
+        symbol,price,volume,timestamp
+      AAPL,204.06500244140625,2312674,2025-06-09 13:30:00
+      AAPL,204.21499633789062,313667,2025-06-09 13:31:00
+      AAPL,204.42999267578125,164566,2025-06-09 13:32:00
+      AAPL,204.63499450683594,126566,2025-06-09 13:33:00
+      …
+      ```
 
  5) Menjalankan Structured Streaming ETL
     Pada file historical_to_postgre.py digunakan untuk menjalankan proses ETL (Extract, Transform, Load) secara batch dari data hasil scraping harga saham yang telah disimpan sebelumnya ke dalam database PostgreSQL. File ini dijalankan pada tahap ke-5 dalam pipeline.
