@@ -1,4 +1,4 @@
-![Screenshot 2025-06-16 083947](https://github.com/user-attachments/assets/87fa4e16-97c6-46ac-8ded-1d9420edd895)# REAL-TIME DATA ENGINEERING AND PREDICTIVE MODELING FOR TOP US STOCKS USING PYSPARK [MATA KULIAH BIG DATA (A)]
+# REAL-TIME DATA ENGINEERING AND PREDICTIVE MODELING FOR TOP US STOCKS USING PYSPARK [MATA KULIAH BIG DATA (A)]
 ## Kelompok 4 Kelas Big Data A
 
 Proyek ini bertujuan untuk membangun pipeline Big Data Realtime dan Offline untuk melakukan analisis dan prediksi harga saham dari 50 perusahaan teratas berdasarkan data yang diperoleh dari Yahoo Finance API. Sistem ini dikembangkan menggunakan kombinasi Kafka, PostgreSQL, dan Metabase sebagai alat visualisasi, serta Python sebagai bahasa pemrograman utama. Model prediktif dibangun menggunakan pendekatan ARIMA (Autoregressive Integrated Moving Average) dari pustaka statsmodels.
