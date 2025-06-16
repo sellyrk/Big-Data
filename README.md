@@ -137,25 +137,25 @@ e. Prediksi Harga Saham Menggunakan Model ARIMA
       ```
 
  5) Menjalankan Structured Streaming ETL
-    Pada file historical_to_postgre.py digunakan untuk menjalankan proses ETL (Extract, Transform, Load) secara batch dari data hasil scraping harga saham yang telah disimpan sebelumnya ke dalam database PostgreSQL. File ini dijalankan pada tahap ke-5 dalam pipeline.
+       Pada file historical_to_postgre.py digunakan untuk menjalankan proses ETL (Extract, Transform, Load) secara batch dari data hasil scraping harga saham yang telah disimpan sebelumnya ke dalam database PostgreSQL. File ini dijalankan pada tahap ke-5 dalam pipeline.
 
-a. Extract (Ekstraksi)
+      a. Extract (Ekstraksi)
 
-Membaca file hasil scraping harga saham yang telah disimpan secara lokal (misalnya stock_data). File tersebut berisi data historis yang diperoleh dari proses sebelumnya menggunakan Kafka Producer.
+      Membaca file hasil scraping harga saham yang telah disimpan secara lokal (misalnya stock_data). File tersebut berisi data historis yang diperoleh dari proses sebelumnya menggunakan Kafka Producer.
 
-b. Transform (Transformasi)
+      b. Transform (Transformasi)
 
-Setelah data dibaca, dilakukan proses transformasi/pembersihan data, meliputi proses memastikan tipe data telah sesuai, menghapus data yang tidak lengkap atau duplikat, serta menyesuaikan nama kolom agar konsisten dengan skema database. Langkah ini bertujuan untuk memastikan kualitas data sebelum dimasukkan ke database
+      Setelah data dibaca, dilakukan proses transformasi/pembersihan data, meliputi proses memastikan tipe data telah sesuai, menghapus data yang tidak lengkap atau duplikat, serta menyesuaikan nama kolom agar konsisten dengan skema database. Langkah ini bertujuan untuk memastikan kualitas data sebelum dimasukkan ke database
 
-c. Load (Memuat data ke PostgreSQL)
+      c. Load (Memuat data ke PostgreSQL)
 
-Setelah dibersihkan, data dimasukkan ke tabel stock_prices_cleaned di dalam database postgreSQL bernama stockdb. Proses ini dilakukan menggunakan koneksi database melalui pustaka seperti psycopg2. 
+      Setelah dibersihkan, data dimasukkan ke tabel stock_prices_cleaned di dalam database postgreSQL bernama stockdb. Proses ini dilakukan menggunakan koneksi database melalui pustaka seperti psycopg2. 
 
-Dengan kata lain, script pada proses ini berperan penting sebagai penghubung antara data hasil scraping dan penyimpanan ke database, agar data siap digunakan untuk proses analisis lanjutan atau pelatihan model machine learning.
+      Dengan kata lain, script pada proses ini berperan penting sebagai penghubung antara data hasil scraping dan penyimpanan ke database, agar data siap digunakan untuk proses analisis lanjutan atau pelatihan model machine learning.
 
-    ```
-    python historical_to_postgre.py
-    ```
+       ```
+       python historical_to_postgre.py
+       ```
     
   7) Menjalankan Kafka Producer untuk Data Real-Time
      Setelah data historis 50 perusahaan saham disimpan ke dalam database PostgreSQL melalui skrip sebelumnya. Pipeline selanjutnya adalah dengan melakukan streaming data real-time menggunakan Kafka. Tahap ini dijalankan dengan file skrip: kafka_producer_stock.py
@@ -166,47 +166,47 @@ Dengan kata lain, script pada proses ini berperan penting sebagai penghubung ant
 
      Dalam skrip ini, kode di dalamnya bertugas untuk mengambil data harga saham secara real-time dari 50 perusahaan teratas dibantu dengan modul yfinance, lalu mengirimkannya secara berturut-turut selama 30 menit ke Kafka Topic bernama stock_prices. Penjelasan komponen kode sebagai berikut:
 
-a. Inisialisasi Kafka Producer
+      a. Inisialisasi Kafka Producer
+      
+      Kafka Producer dikonfigurasi untuk mengirim data ke broker lokal di localhost:9092, dan akan mengirimkan data dalam format JSON (melalui value_serializer).
+      
+      b. Membuat list simbol saham
+      
+      Sebanyak 50 simbol saham dari perusahaan besar dalam web Yahoo Finance didefinisikan dalam list symbols, mewakili sektor teknologi, kesehatan, energi, dan konsumer.
+      
+      c. Menjalankan loop streaming dengan waktu 30 menit
+      
+      Program melakukan loop selama 30 menit (for minute in range(30)) untuk mendapatkan data saham secara berkala, dengan catatan pada setiap menit, program mengambil data harga dan volume interval per menit (1m) selama 1 hari (1d). Data yang diambil adalah baris terakhir dari histori (tail(1)), mewakili harga terkini.
+      
+      d. Membuat dan memvalidasi payload
+      
+      Untuk setiap simbol, dibuat dictionary payload berisi: symbol, price (dari kolom Close), volume, dan timestamp. Dan hanya data yang valid (tidak null) yang akan dikirim ke Kafka.
 
-Kafka Producer dikonfigurasi untuk mengirim data ke broker lokal di localhost:9092, dan akan mengirimkan data dalam format JSON (melalui value_serializer).
+      e. Pengiriman ke kafka
+      
+      Payload yang valid dikirim ke Kafka topic stock_prices menggunakan producer.send(). Kafka kemudian akan menyimpan dan menunggu konsumsi oleh konsumer (streaming engine).
+      
+      f. Pengendalian laju dan logging
+      
+      Dalam hal ini, time.sleep(0.3) digunakan agar pengambilan data tidak terlalu cepat, lalu time.sleep(30) menunggu 30 detik sebelum iterasi menit berikutnya. Dan semua aktivitas dicatat di konsol (termasuk warning, error, dan pesan terkirim).
+      
+      g. Handling untuk error
+      
+      Kesalahan apa pun dalam pengambilan data saham ditangani dengan try-except agar proses tidak terhenti.
+      Berikut ini adalah sedikit gambaran output pada skrip ini:
 
-b. Membuat list simbol saham
+      ```
+      ~~Starting kafka_producer_stock.py for 30-minute streaming~~
+      
+      [INFO] Minute 1/30 - Fetching real-time prices at 19:34:22
+      [SENT] {'symbol': 'AAPL', 'price': 196.4499969482422, 'volume': 1003296, 'timestamp': '2025-06-13 15:59:00'}
+      [SENT] {'symbol': 'MSFT', 'price': 474.9599914550781, 'volume': 473054, 'timestamp': '2025-06-13 15:59:00'}
+      [SENT] {'symbol': 'GOOGL', 'price': 174.6999969482422, 'volume': 626116, 'timestamp': '2025-06-13 15:59:00'}
+      [SENT] {'symbol': 'AMZN', 'price': 212.10000610351562, 'volume': 601959, 'timestamp': '2025-06-13 15:59:00'}
+      …
+      ```
 
-Sebanyak 50 simbol saham dari perusahaan besar dalam web Yahoo Finance didefinisikan dalam list symbols, mewakili sektor teknologi, kesehatan, energi, dan konsumer.
-
-c. Menjalankan loop streaming dengan waktu 30 menit
-
-Program melakukan loop selama 30 menit (for minute in range(30)) untuk mendapatkan data saham secara berkala, dengan catatan pada setiap menit, program mengambil data harga dan volume interval per menit (1m) selama 1 hari (1d). Data yang diambil adalah baris terakhir dari histori (tail(1)), mewakili harga terkini.
-
-d. Membuat dan memvalidasi payload
-
-Untuk setiap simbol, dibuat dictionary payload berisi: symbol, price (dari kolom Close), volume, dan timestamp. Dan hanya data yang valid (tidak null) yang akan dikirim ke Kafka.
-
-e. Pengiriman ke kafka
-
-Payload yang valid dikirim ke Kafka topic stock_prices menggunakan producer.send(). Kafka kemudian akan menyimpan dan menunggu konsumsi oleh konsumer (streaming engine).
-
-f. Pengendalian laju dan logging
-
-Dalam hal ini, time.sleep(0.3) digunakan agar pengambilan data tidak terlalu cepat, lalu time.sleep(30) menunggu 30 detik sebelum iterasi menit berikutnya. Dan semua aktivitas dicatat di konsol (termasuk warning, error, dan pesan terkirim).
-
-g. Handling untuk error
-
-Kesalahan apa pun dalam pengambilan data saham ditangani dengan try-except agar proses tidak terhenti.
-Berikut ini adalah sedikit gambaran output pada skrip ini:
-
-```
-~~Starting kafka_producer_stock.py for 30-minute streaming~~
-
-[INFO] Minute 1/30 - Fetching real-time prices at 19:34:22
-[SENT] {'symbol': 'AAPL', 'price': 196.4499969482422, 'volume': 1003296, 'timestamp': '2025-06-13 15:59:00'}
-[SENT] {'symbol': 'MSFT', 'price': 474.9599914550781, 'volume': 473054, 'timestamp': '2025-06-13 15:59:00'}
-[SENT] {'symbol': 'GOOGL', 'price': 174.6999969482422, 'volume': 626116, 'timestamp': '2025-06-13 15:59:00'}
-[SENT] {'symbol': 'AMZN', 'price': 212.10000610351562, 'volume': 601959, 'timestamp': '2025-06-13 15:59:00'}
-…
-```
-
-  Data real-time yang telah dikirim ke Kafka Topic stock_prices kemudian diambil oleh konsumer melalui pipeline streaming, yaitu file: pyspark_streaming_kafka_to_postgres.py. 
+     Data real-time yang telah dikirim ke Kafka Topic stock_prices kemudian diambil oleh konsumer melalui pipeline streaming, yaitu file: pyspark_streaming_kafka_to_postgres.py. 
 
   7) Menjalankan Kafka Consumer untuk Data Real-Time
 
@@ -218,85 +218,85 @@ Berikut ini adalah sedikit gambaran output pada skrip ini:
 
      Setelah kafka topic stock_prices menerima data realtime, kafka consumer mengambil data real-time tersebut untuk dilakukan pembersihan dan pengolahan data kemudian mengirimkan pada tabel stock_prices_cleaned di database stockdb di PostgreSQL. Tahapannya adalah sebagai berikut:
 
-a. Import Library 
-
-Json gunanya untuk membaca pesan dari Kafka (yang dikirim dalam format JSON), psycopg2 untuk koneksi ke PostgreSQL, pandas untuk bantu parsing waktu, KafkaConsumer Untuk menerima pesan dari Kafka topic, dan datetime Untuk memproses waktu
-
-b. Koneksi ke PostgreSQL
-
-Untuk Menghubungkan ke database PostgreSQL lokal di port 5433 dengan yang sudah ditentukan yaitu host, username, password, nama database, dan port. kemudian Membuat objek cursor untuk menjalankan perintah SQL
-
-c. Membuat Tabel stock_prices_cleaned
-
-Jika belum dibuat, tabel dibuat dengan symbol nya adalah text kode saham, price adalah harga penutupan, volume adalah jumlah transaksi, dan timestamp adalah waktu
-
-d. Inisialisasi Kafka Consumer
-
-Fungsinya untuk mendengarkan topic kafka yaitu stock_prices dengan server kafka ada di localhost:9092. Variabel value_deserializer untuk mengubah pesan byte ke dict JSON, auto_offset_reset='earliest untuk memulai dari pesan awal jika belum ada offset, dan group_id='stock_group' adalah nama grup consumer
-
-e. Konsumsi dan Simpan ke PostgreSQL
-
-Dengan cara memulai loop konsumsi dari data dict JSON seperti:
-{
-  "symbol": "AAPL",
-  "price": 192.4,
-  "volume": 32000,
-  "timestamp": "2025-06-15 08:40:00"
-}
-
-f. Ekstrak dan Simpan Data
-
-Dilakukan dengan cara mengambil masing-masing kolom dari pesan, konversi waktu ke format datetime, dan menjalankan perintah INSERT ke PostgreSQL, dan commit (simpan perubahan)
-
-g. Menangani error 
-Dengan cara mencetak pesan error gagal menyimpan data ketika ada error saat parsing atau insert
-
-Jadi selama producer kafka masih mengirim data, kafka consumer akan terus menerima dan menyimpan datanya ke PostgreSQL. 
+      a. Import Library 
+      
+      Json gunanya untuk membaca pesan dari Kafka (yang dikirim dalam format JSON), psycopg2 untuk koneksi ke PostgreSQL, pandas untuk bantu parsing waktu, KafkaConsumer Untuk menerima pesan dari Kafka topic, dan datetime Untuk memproses waktu
+      
+      b. Koneksi ke PostgreSQL
+      
+      Untuk Menghubungkan ke database PostgreSQL lokal di port 5433 dengan yang sudah ditentukan yaitu host, username, password, nama database, dan port. kemudian Membuat objek cursor untuk menjalankan perintah SQL
+      
+      c. Membuat Tabel stock_prices_cleaned
+      
+      Jika belum dibuat, tabel dibuat dengan symbol nya adalah text kode saham, price adalah harga penutupan, volume adalah jumlah transaksi, dan timestamp adalah waktu
+      
+      d. Inisialisasi Kafka Consumer
+      
+      Fungsinya untuk mendengarkan topic kafka yaitu stock_prices dengan server kafka ada di localhost:9092. Variabel value_deserializer untuk mengubah pesan byte ke dict JSON, auto_offset_reset='earliest untuk memulai dari pesan awal jika belum ada offset, dan group_id='stock_group' adalah nama grup consumer
+      
+      e. Konsumsi dan Simpan ke PostgreSQL
+      
+      Dengan cara memulai loop konsumsi dari data dict JSON seperti:
+      {
+        "symbol": "AAPL",
+        "price": 192.4,
+        "volume": 32000,
+        "timestamp": "2025-06-15 08:40:00"
+      }
+      
+      f. Ekstrak dan Simpan Data
+      
+      Dilakukan dengan cara mengambil masing-masing kolom dari pesan, konversi waktu ke format datetime, dan menjalankan perintah INSERT ke PostgreSQL, dan commit (simpan perubahan)
+      
+      g. Menangani error 
+      Dengan cara mencetak pesan error gagal menyimpan data ketika ada error saat parsing atau insert
+      
+      Jadi selama producer kafka masih mengirim data, kafka consumer akan terus menerima dan menyimpan datanya ke PostgreSQL. 
 
 8) Pelatihan dan Evaluasi Model ML
 
-  Model yang digunakan adalah Linear Regression. Model dievaluasi menggunakan metrik seperti RMSE (Root Mean Square Error) dan MAE (Mean Absolute Error). Akurasi model saat ini adalah sekitar 0.0209 untuk RMSE dan 0.0078 untuk MAE.
+     Model yang digunakan adalah Linear Regression. Model dievaluasi menggunakan metrik seperti RMSE (Root Mean Square Error) dan MAE (Mean Absolute Error). Akurasi model saat ini adalah sekitar 0.0209 untuk RMSE dan 0.0078 untuk MAE.
 
-   ```
-   python ml_training_batch.py
-   ```
+      ```
+      python ml_training_batch.py
+      ```
 
-   Dataset yang digunakan bernama ‘stock_prices_cleaned’ dan diambil dari database PostgreSQL dengan nama ‘stockdb’. Dataset ini berisi data historis saham yang meliputi beberapa informasi penting yaitu : ‘symbol’ (kode saham), ‘timestamp’ (waktu pencatatan data), ‘price’ (harga saham pada saat itu), dan ‘volume’ (jumlah transaksi yang terjadi). Data ini menjadi dasar dalam proses analisis dan prediksi menggunakan model ARIMA. Tahapan yang dilakukan : 
+      Dataset yang digunakan bernama ‘stock_prices_cleaned’ dan diambil dari database PostgreSQL dengan nama ‘stockdb’. Dataset ini berisi data historis saham yang meliputi beberapa informasi penting yaitu : ‘symbol’ (kode saham), ‘timestamp’ (waktu pencatatan data), ‘price’ (harga saham pada saat itu), dan ‘volume’ (jumlah transaksi yang terjadi). Data ini menjadi dasar dalam proses analisis dan prediksi menggunakan model ARIMA. Tahapan yang dilakukan : 
 
-a. Koneksi ke Database. 
-
-Untuk mengakses data saham, digunakan library SQLAIchemy yang menghubungkan script Python dengan database PostgreSQL. Koneksi ini memungkinkan pengambilan data langsung dari tabel ‘stock_prices_cleaned’ yang tersimpan dalam database ‘stockdb’.
-
-b. Pengolahan Data Awal
-
-Setelah data berhasil dimuat, data diurutkan berdasarka kode saham (symbol) dan waktu (timestamp). Kemudian, data dipisahkan berdasarkan masing-masing simbol saham. Dalam tahap ini, juga dihitung perubahan volume transaksi (volume_change) dan persentase perubahan harga (price_change_pct) dari waktu ke waktu.
-
-c. Pembangunan Model ARIMA
-
-Model ini diterapkan pada data harga saham masing-masing simbol. Proses training dilakukan untuk membuat model memahami pola harga historis, lalu menghasilkan prediksi harga untuk periode berikutnya (satu langkah kedepan).
-
-d. Pembuatan Keputusan Investasi
-
-Setelah prediksi dihasilkan, nilainya dibandingkan dengan harga terakhir. Berdasarkan perbandingan tersebut, sistem memberikan rekomendasi berupa : 
-‘Buy’, jika harga diprediksi naik
-‘Sell’ jika harga diprediksi turun
-‘Hold’ jika tidak ada perubahan signifikan.
-
-e. Evaluasi Model
-
-Digunakan dua indikator evaluasi untuk mengukur seberapa akurat prediksi yang dihasilkan dengan 
-‘RMSE’ (Root Mean Squared Error) untuk mengukur deviasi rata-rata kuadrat
-‘MAE’ (Mean Absolute Error) untuk menghitung rata-rata kesalahan absolut antara nilai aktual dan hasil prediksi
-
-f. Penyimpanan Output 
-
-Seluruh hasil prediksi dan rekomendasi disimpan kembali ke dalam database PostgreSQL, tepatnya ke tabel baru bernama ‘prediction_result_arima’. 
-
-g. Hasil dan Evaluasi
-
-Dari hasil eksekusi program, diketahui bahwa tidak semua saham dapat diproses. Beberapa simbol dilewati karena jumlah data historisnya terlalu sedikir (kurang dari 30 baris), yang tidak cukup untuk membangun model yang stabil.
-
-Data pelatihan berasal dari "stock_prices_cleaned" sementara data uji menggunakan data realtime "stock_prices_cleaned" dengan data hasil output prediksi pemodelan yaitu "predicted_stock".
+      a. Koneksi ke Database. 
+      
+      Untuk mengakses data saham, digunakan library SQLAIchemy yang menghubungkan script Python dengan database PostgreSQL. Koneksi ini memungkinkan pengambilan data langsung dari tabel ‘stock_prices_cleaned’ yang tersimpan dalam database ‘stockdb’.
+      
+      b. Pengolahan Data Awal
+      
+      Setelah data berhasil dimuat, data diurutkan berdasarka kode saham (symbol) dan waktu (timestamp). Kemudian, data dipisahkan berdasarkan masing-masing simbol saham. Dalam tahap ini, juga dihitung perubahan volume transaksi (volume_change) dan persentase perubahan harga (price_change_pct) dari waktu ke waktu.
+      
+      c. Pembangunan Model ARIMA
+      
+      Model ini diterapkan pada data harga saham masing-masing simbol. Proses training dilakukan untuk membuat model memahami pola harga historis, lalu menghasilkan prediksi harga untuk periode berikutnya (satu langkah kedepan).
+      
+      d. Pembuatan Keputusan Investasi
+      
+      Setelah prediksi dihasilkan, nilainya dibandingkan dengan harga terakhir. Berdasarkan perbandingan tersebut, sistem memberikan rekomendasi berupa : 
+      ‘Buy’, jika harga diprediksi naik
+      ‘Sell’ jika harga diprediksi turun
+      ‘Hold’ jika tidak ada perubahan signifikan.
+      
+      e. Evaluasi Model
+      
+      Digunakan dua indikator evaluasi untuk mengukur seberapa akurat prediksi yang dihasilkan dengan 
+      ‘RMSE’ (Root Mean Squared Error) untuk mengukur deviasi rata-rata kuadrat
+      ‘MAE’ (Mean Absolute Error) untuk menghitung rata-rata kesalahan absolut antara nilai aktual dan hasil prediksi
+      
+      f. Penyimpanan Output 
+      
+      Seluruh hasil prediksi dan rekomendasi disimpan kembali ke dalam database PostgreSQL, tepatnya ke tabel baru bernama ‘prediction_result_arima’. 
+      
+      g. Hasil dan Evaluasi
+      
+      Dari hasil eksekusi program, diketahui bahwa tidak semua saham dapat diproses. Beberapa simbol dilewati karena jumlah data historisnya terlalu sedikir (kurang dari 30 baris), yang tidak cukup untuk membangun model yang stabil.
+      
+      Data pelatihan berasal dari "stock_prices_cleaned" sementara data uji menggunakan data realtime "stock_prices_cleaned" dengan data hasil output prediksi pemodelan yaitu "predicted_stock".
 
    
 5. Struktur Dataset Akhir
@@ -307,7 +307,7 @@ Data pelatihan berasal dari "stock_prices_cleaned" sementara data uji menggunaka
 |`stock_prices_cleaned` | Dataset hasil ETL streaming, sudah dibersihkan dan disimpan di PostgreSQL | 
 | `predicted_prices`    | Dataset hasil prediksi dari model ARIMA                |
 
-5. Visualisasi Dashboard
+6. Visualisasi Dashboard
 
    ![Screenshot 2025-06-16 083947](https://github.com/user-attachments/assets/9731cdb8-6592-4d4b-b35c-f4c19812c08a)
 
@@ -336,6 +336,6 @@ Pada grafik batang berwarna hijau ini menampilkan 5 saham teratas dengan volatil
 Grafik ini adalah gabungan antara harga saham (line chart) dan volume transaksi (area chart) untuk salah satu saham, yaitu ORCL (Oracle). Sumbu kiri (hijau) menunjukkan pergerakan saham dan sumbu kanan (oranye), menunjukkan jumlah volume saham yang diperdagangkan dalam waktu yang sama. Terlihat jika pada saham ORCL, volume saham yang terjual semakin meningkat. Grafik ini sangat berguna jika ingin mengetahui analisis mikro per saham.
 
    
-6. Lampiran
+7. Lampiran
    Tautan File Kode dan README.md Drive Kelompok: [https://drive.google.com/drive/folders/1_APxOUnnbFFMcGjEe_QQrWE1kUYA_e3M?usp=drive_link]
 
